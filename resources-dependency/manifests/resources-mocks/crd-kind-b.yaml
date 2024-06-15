@@ -1,0 +1,56 @@
+# A simple CRD to deploy a demo website from a git repo
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: kindbs.ldassonville.io
+spec:
+  scope: Namespaced
+  group: ldassonville.io
+  names:
+    kind: KindB
+    plural: kindbs
+    singular: kindb
+    shortNames:
+      - kbs
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: value
+          type: string
+          priority: 0
+          jsonPath: .spec.value
+          description: Value of the resource
+      schema:
+        openAPIV3Schema:
+          properties:
+            apiVersion:
+              type: string
+            kind:
+              type: string
+            metadata:
+              properties:
+                name:
+                  type: string
+                  maxLength: 63
+              type: object
+            spec:
+              description: Specification of the desired state
+              properties:
+                value:
+                  type: string
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+            status:
+              description: Specification of the observed state
+              properties:
+                result:
+                  type: string
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+          type: object
+
+

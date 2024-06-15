@@ -1,0 +1,8 @@
+apiVersion: ldassonville.io/v1alpha1
+kind: XCDep
+metadata:
+  name: dep-demo
+  namespace: xplaned-sample
+spec:
+  name: sample
+ 
