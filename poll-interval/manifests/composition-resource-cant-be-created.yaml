@@ -1,0 +1,59 @@
+kind: Composition
+apiVersion: apiextensions.crossplane.io/v1
+metadata:
+  name: xdemos.ldassonville.io
+spec:
+  compositeTypeRef:
+    apiVersion: ldassonville.io/v1alpha1
+    kind: XDemo
+  mode: Resources
+  writeConnectionSecretsToNamespace: crossplane-system
+  publishConnectionDetailsWithStoreConfigRef:
+    name: default
+  patchSets:
+    - name: NameAndNamespacePatch
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.labels[crossplane.io/claim-name]
+          toFieldPath: spec.forProvider.manifest.metadata.name
+          policy:
+            fromFieldPath: Required
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.labels[crossplane.io/claim-namespace]
+          toFieldPath: spec.forProvider.manifest.metadata.namespace
+          policy:
+            fromFieldPath: Required
+  resources:
+    - name: Configmap
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha2
+        kind: Object
+        metadata:
+          labels:
+            xplaned.io/name: configmap
+        spec:
+          providerConfigRef:
+            name: provider-kubernetes
+          readiness: 
+            policy: INVALID_POLICY
+          forProvider:
+            manifest:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: ${injected}
+                namespace: ${injected-dynamically}
+              data:
+                dummy: toto
+            
+      patches:
+        - type: PatchSet
+          patchSetName: NameAndNamespacePatch
+      readinessChecks:
+        - matchCondition:
+            status: 'True'
+            type: Ready
+          type: MatchCondition
+
+
+
