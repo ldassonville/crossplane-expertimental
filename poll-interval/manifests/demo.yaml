@@ -1,0 +1,6 @@
+apiVersion: ldassonville.io/v1alpha1
+kind: XCDemo
+metadata:
+  name: demo
+spec:
+  name: demo

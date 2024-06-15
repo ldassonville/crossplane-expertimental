@@ -1,0 +1,83 @@
+kind: Composition
+apiVersion: apiextensions.crossplane.io/v1
+metadata:
+  name: xdeps.ldassonville.io
+spec:
+  compositeTypeRef:
+    apiVersion: ldassonville.io/v1alpha1
+    kind: XDep
+  mode: Resources
+  writeConnectionSecretsToNamespace: crossplane-system
+  publishConnectionDetailsWithStoreConfigRef:
+    name: default
+  patchSets:
+    - name: NameAndNamespacePatch
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.labels[crossplane.io/claim-name]
+          toFieldPath: spec.forProvider.manifest.metadata.name
+          policy:
+            fromFieldPath: Required
+        - type: FromCompositeFieldPath
+          fromFieldPath: metadata.labels[crossplane.io/claim-namespace]
+          toFieldPath: spec.forProvider.manifest.metadata.namespace
+          policy:
+            fromFieldPath: Required
+  resources:
+    - name: KindA
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        spec:
+          forProvider:
+            manifest:
+              apiVersion: ldassonville.io/v1
+              kind: KindA
+              metadata:
+                name: ${will-be-set-dynamically}
+                namespace: ${will-be-set-dynamically}
+              spec:
+                value: "value-a"
+          providerConfigRef:
+            name: provider-kubernetes
+      patches:
+        - type: PatchSet
+          patchSetName: NameAndNamespacePatch
+        ## OUTPUT
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.manifest.status.result
+          toFieldPath: status.kinda.result
+          policy:
+            fromFieldPath: Required
+
+    - name: KindB
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        spec:
+          forProvider:
+            manifest:
+              apiVersion: ldassonville.io/v1
+              kind: KindB
+              metadata:
+                name: ${will-be-set-dynamically}
+                namespace: ${will-be-set-dynamically}
+              spec:
+                value:  ${will-be-set-dynamically}
+          providerConfigRef:
+            name: provider-kubernetes
+      patches:
+        - type: PatchSet
+          patchSetName: NameAndNamespacePatch
+        ## Input  
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.kinda.result
+          toFieldPath: "spec.forProvider.manifest.spec.value"
+          policy:
+            fromFieldPath: Required
+
+        ## OUTPUT
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.manifest.status.result
+          toFieldPath: status.kindb.result
+
