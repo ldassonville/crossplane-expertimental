@@ -11,7 +11,7 @@ A reconcile method is in charge to ensure that the exepected state is matching t
 
 To do this, this method is called in a loop (aka the reconciliation loop).
 
-![reconciliation loop](./reconciliation-loop.png)
+![reconciliation loop](./assets/reconciliation-loop.png)
 
 
 ### Technical implementation
@@ -89,12 +89,12 @@ delay = $\min(basedelay*2^r, maxdelay)$
 
 So if we take the crossplane first iteration values, we obtain the following result
 
-![exponential-backoff by retry](./exponential-backoff-numbers.png)
+![exponential-backoff by retry](./assets/exponential-backoff-numbers.png)
 
 
 In the time graph we will observe something like this, with reconciliation more and more spaced until reach the max delay
 
-![exponential-backoff](./exponential-backoff.png)
+![exponential-backoff](./assets/exponential-backoff.png)
 
 
 
@@ -107,7 +107,7 @@ This parameter let's you configure the time interval between each reconciliation
 :warning: **Warning:** Notice that if you reconcilation is not succeeded (error or not reach the exepected state) this interval is not used
 
 
-![poll-interval](./poll-interval.png)
+![poll-interval](./assets/poll-interval.png)
 
 
 Default values is ```defaultPollInterval = 1 * time.Minute```
@@ -117,7 +117,7 @@ Default values is ```defaultPollInterval = 1 * time.Minute```
 
 The duration to reconcile a resource is limited to avoid infinite duraction.
 
-![reconcile-timeout](./2-reconcile-timeout.png)
+![reconcile-timeout](./assets/2-reconcile-timeout.png)
 
 Technically it's handle using the golang context timeout 
 
@@ -169,7 +169,7 @@ The **max reconcile rate** parameter permit to limit the max reconciliation that
 `--max-reconcile-rate`
 
 
-![](./reconciliation-rate.png)
+![](./assets/reconciliation-rate.png)
 
 It could be nice to adjuste this parameter : 
  * According to the limitation of the API used by the external resource 
@@ -180,9 +180,9 @@ It could be nice to adjuste this parameter :
 
 Have a look to the composition controller init [code](https://github.com/crossplane/crossplane/blob/d27ffc21da430ca196fdbc707bd1c1482baad742/internal/controller/apiextensions/definition/reconciler.go#L472-L533)
 
-![](./1-composite-controllers.png)
+![](./assets/1-composite-controllers.png)
 
-![](./composite-controllers.png)
+![](./assets/composite-controllers.png)
 
 
 Related: 
@@ -208,7 +208,7 @@ https://github.com/crossplane/crossplane/blob/76fdf072330959e526a3a2435321b6a088
 ```
 
 
-![global-ratelimiter](./global-rate-limiter.png)
+![global-ratelimiter](./assets/global-rate-limiter.png)
 
 
 Global ratelimiter (crossplane implementation [code](https://github.com/crossplane/crossplane-runtime/blob/2d523674b5a01b1a92f974010cf55da0f6e36230/pkg/ratelimiter/default.go#L29-L34))
@@ -220,7 +220,7 @@ func NewGlobal(rps int) *workqueue.BucketRateLimiter {
 	return &workqueue.BucketRateLimiter{Limiter: rate.NewLimiter(rate.Limit(rps), rps*10)}
 }
 ```
-![shared global-ratelimiter across controllers](./shared-global-rate-limiter.png)
+![shared global-ratelimiter across controllers](./assets/shared-global-rate-limiter.png)
 
 
 
